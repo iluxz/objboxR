@@ -437,4 +437,6 @@ function executeCommand(cmd) {
 }
 
 // Start
+console.log('Cube engine starting...');
+console.log('THREE available:', typeof THREE !== 'undefined');
 init();
