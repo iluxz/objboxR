@@ -247,7 +247,7 @@ function animate() {
       const level = data[i * 4] / 255;
       cube.material.emissiveIntensity = 0.2 + level * 0.3;
     }
-  }
+  });
   
   // Particles
   if (particles) {
@@ -438,4 +438,3 @@ function executeCommand(cmd) {
 
 // Start
 init();
-"
