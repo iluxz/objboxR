@@ -133,14 +133,27 @@ function initScene() {
   }
   partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
   partGeo.setAttribute('color', new THREE.BufferAttribute(partCol, 3));
-  partGeo.setAttribute('size', new THREE.BufferAttribute(partSizes, 1));
+  // Create circular texture for particles
+  const texCanvas = document.createElement('canvas');
+  texCanvas.width = 64;
+  texCanvas.height = 64;
+  const ctx = texCanvas.getContext('2d');
+  const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gradient.addColorStop(0, 'rgba(255,255,255,1)');
+  gradient.addColorStop(0.5, 'rgba(255,255,255,0.5)');
+  gradient.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 64, 64);
+  const partTexture = new THREE.CanvasTexture(texCanvas);
   const partMat = new THREE.PointsMaterial({
-    size: 0.08,
+    size: 0.12,
     vertexColors: true,
     transparent: true,
-    opacity: 0.7,
+    opacity: 0.8,
     blending: THREE.AdditiveBlending,
     sizeAttenuation: true,
+    map: partTexture,
+    depthWrite: false,
   });
   particles = new THREE.Points(partGeo, partMat);
   scene.add(particles);
