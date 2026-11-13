@@ -110,27 +110,37 @@ function initScene() {
     outerCube.add(cube);
   }
   
-  // Particles
+  // Particles (dust motes - better looking)
   const partGeo = new THREE.BufferGeometry();
   const partPos = new Float32Array(particleCount * 3);
   const partCol = new Float32Array(particleCount * 3);
+  const partSizes = new Float32Array(particleCount);
   for (let i = 0; i < particleCount; i++) {
-    partPos[i * 3] = (Math.random() - 0.5) * 8;
-    partPos[i * 3 + 1] = (Math.random() - 0.5) * 8;
-    partPos[i * 3 + 2] = (Math.random() - 0.5) * 8;
-    const c = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 1, 0.5);
+    // Distribute in a sphere around the cube
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = 2 + Math.random() * 4;
+    partPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    partPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    partPos[i * 3 + 2] = r * Math.cos(phi);
+    // Teal/purple/pink colors
+    const hue = Math.random() < 0.33 ? 0.5 : (Math.random() < 0.5 ? 0.75 : 0.9);
+    const c = new THREE.Color().setHSL(hue, 0.8, 0.6);
     partCol[i * 3] = c.r;
     partCol[i * 3 + 1] = c.g;
     partCol[i * 3 + 2] = c.b;
+    partSizes[i] = 0.02 + Math.random() * 0.06;
   }
   partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
   partGeo.setAttribute('color', new THREE.BufferAttribute(partCol, 3));
+  partGeo.setAttribute('size', new THREE.BufferAttribute(partSizes, 1));
   const partMat = new THREE.PointsMaterial({
-    size: 0.05,
+    size: 0.08,
     vertexColors: true,
     transparent: true,
-    opacity: 0.6,
+    opacity: 0.7,
     blending: THREE.AdditiveBlending,
+    sizeAttenuation: true,
   });
   particles = new THREE.Points(partGeo, partMat);
   scene.add(particles);
@@ -249,14 +259,27 @@ function animate() {
     }
   });
   
-  // Particles
+  // Particles (drift + depth fade)
   if (particles) {
     const pos = particles.geometry.attributes.position.array;
     for (let i = 0; i < particleCount; i++) {
-      pos[i * 3 + 1] += Math.sin(time + i) * 0.001;
+      // Slow drift
+      pos[i * 3] += Math.sin(time * 0.3 + i * 0.7) * 0.0005;
+      pos[i * 3 + 1] += Math.cos(time * 0.2 + i * 0.5) * 0.0005;
+      pos[i * 3 + 2] += Math.sin(time * 0.25 + i * 0.3) * 0.0005;
+      // Reset if too far
+      const dist = Math.sqrt(pos[i*3]**2 + pos[i*3+1]**2 + pos[i*3+2]**2);
+      if (dist > 6) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const r = 2 + Math.random() * 2;
+        pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        pos[i * 3 + 2] = r * Math.cos(phi);
+      }
     }
     particles.geometry.attributes.position.needsUpdate = true;
-    particles.rotation.y = time * 0.05;
+    particles.rotation.y = time * 0.02;
   }
   
   // FPS counter
