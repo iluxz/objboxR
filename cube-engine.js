@@ -58,10 +58,21 @@ function initScene() {
   camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = zoom;
   
-  const canvas = document.getElementById('main');
-  renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.domElement.id = 'main';
+  renderer.domElement.style.position = 'fixed';
+  renderer.domElement.style.top = '0';
+  renderer.domElement.style.left = '0';
+  renderer.domElement.style.zIndex = '0';
+  // Replace the existing canvas
+  const oldCanvas = document.getElementById('main');
+  if (oldCanvas && oldCanvas.parentNode) {
+    oldCanvas.parentNode.replaceChild(renderer.domElement, oldCanvas);
+  } else {
+    document.body.appendChild(renderer.domElement);
+  }
   
   // Lights
   const ambient = new THREE.AmbientLight(0x404040, 0.5);
