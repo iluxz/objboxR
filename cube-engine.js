@@ -90,7 +90,7 @@ function initScene() {
   outerCube = new THREE.Mesh(outerGeo, outerMat);
   scene.add(outerCube);
   
-  // Inner cubes
+  // Inner cubes (children of outer cube so they rotate with it)
   const innerGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
   for (let i = 0; i < 8; i++) {
     const mat = new THREE.MeshPhongMaterial({
@@ -107,7 +107,7 @@ function initScene() {
       Math.sin(angle) * radius
     );
     innerCubes.push(cube);
-    scene.add(cube);
+    outerCube.add(cube);
   }
   
   // Particles
@@ -437,6 +437,4 @@ function executeCommand(cmd) {
 }
 
 // Start
-console.log('Cube engine starting...');
-console.log('THREE available:', typeof THREE !== 'undefined');
 init();
